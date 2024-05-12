@@ -67,34 +67,45 @@ int main(int argc, char* argv[]) {
 
 	std::cout << uri << std::endl;
 	std::string response = getJSON(uri);
-	auto json = json::parse(response);
 
-	if (json == nullptr) {
-		std::cout << "No data found" << std::endl;
-		return 0;
+	if (response.empty()) {
+		std::cerr << "Error: Could not reach server or server returned an empty response." << std::endl;
+		return 1;
 	}
 
-	auto& rangeDetails = json["rangeDetails"];
-
-	if (rangeDetails == nullptr) {
-		std::cout << "No data found" << std::endl;
-		return 0;
-	}
-
-	std::cout << std::setw(0) << "start" << std::setw(8) << "end" << std::setw(18) << "duration" << std::setw(18) << "durationInHours" << std::endl;
-	std::cout << std::string(49, '-') << std::endl;
-
-	for (auto& rangeDetail : rangeDetails) {
-		if (rangeDetail != nullptr && rangeDetail["range"] != nullptr) {
-			std::cout << std::setw(0) << rangeDetail["range"]["start"].get<std::string>() << std::setw(10) << rangeDetail["range"]["end"].get<std::string>() << std::setw(10) << rangeDetail["duration"].get<std::string>() << std::setw(10) << rangeDetail["durationInHours"].get<std::string>() << std::endl;
+	try {
+		auto json = json::parse(response);
+		if (json == nullptr) {
+			std::cout << "No data found" << std::endl;
+			return 0;
 		}
+
+		auto& rangeDetails = json["rangeDetails"];
+
+		if (rangeDetails == nullptr) {
+			std::cout << "No data found" << std::endl;
+			return 0;
+		}
+
+		std::cout << std::setw(0) << "start" << std::setw(8) << "end" << std::setw(18) << "duration" << std::setw(18) << "durationInHours" << std::endl;
+		std::cout << std::string(49, '-') << std::endl;
+
+		for (auto& rangeDetail : rangeDetails) {
+			if (rangeDetail != nullptr && rangeDetail["range"] != nullptr) {
+				std::cout << std::setw(0) << rangeDetail["range"]["start"].get<std::string>() << std::setw(10) << rangeDetail["range"]["end"].get<std::string>() << std::setw(10) << rangeDetail["duration"].get<std::string>() << std::setw(10) << rangeDetail["durationInHours"].get<std::string>() << std::endl;
+			}
+		}
+		std::cout << std::endl;
+
+		std::cout << std::setw(0) << "totalHours" << std::setw(20) << "totalHoursInHHMM" << std::setw(27) << "expectedLunchTimeInHHMM" << std::endl;
+		std::cout << std::string(60, '-') << std::endl;
+		std::cout << std::setw(0) << json["totalHours"].get<std::string>() << std::setw(15) << json["totalHoursInHHMM"].get<std::string>() << std::setw(20) << json["expectedLunchTimeInHHMM"].get<std::string>() << std::endl;
+
+
+		return 0;
 	}
-	std::cout << std::endl;
-
-	std::cout << std::setw(0) << "totalHours" << std::setw(20) << "totalHoursInHHMM" << std::setw(27) << "expectedLunchTimeInHHMM" << std::endl;
-	std::cout << std::string(60, '-') << std::endl;
-	std::cout << std::setw(0) << json["totalHours"].get<std::string>() << std::setw(15) << json["totalHoursInHHMM"].get<std::string>() << std::setw(20) << json["expectedLunchTimeInHHMM"].get<std::string>() << std::endl;
-
-
-	return 0;
+	catch (json::parse_error& e) {
+		std::cerr << "Error: Could not parse JSON response: " << e.what() << std::endl;
+		return 1;
+	}
 }
