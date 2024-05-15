@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
         int start = std::stoi(argv[1 + indexOffset]);
         int lunchStart = std::stoi(argv[2 + indexOffset]);
         int minutesOfLunchBreak = std::stoi(argv[3 + indexOffset]);
-        uri += "WithStartLunchAndMinutesOfLunchBreak/" + std::to_string(start) + "/" + std::to_string(lunchStart) +
+        uri += "With/" + std::to_string(start) + "/" + std::to_string(lunchStart) +
                "/" + std::to_string(minutesOfLunchBreak);
     } else if (argc >= (2 + indexOffset)) {
         int minutesOfLunchBreak = std::stoi(argv[1 + indexOffset]);
